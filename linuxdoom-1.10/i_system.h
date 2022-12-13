@@ -53,7 +53,7 @@ int I_GetTime (void);
 // are performed here (joystick reading).
 // Can call D_PostEvent.
 //
-void I_StartFrame (void);
+inline void I_StartFrame (void) {};
 
 
 //
@@ -61,7 +61,7 @@ void I_StartFrame (void);
 // called before processing each tic in a frame.
 // Quick syncronous operations are performed here.
 // Can call D_PostEvent.
-void I_StartTic (void);
+inline void I_StartTic (void) {};
 
 // Asynchronous interrupt functions should maintain private queues
 // that are read by the synchronous functions

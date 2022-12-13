@@ -279,6 +279,7 @@ typedef enum
 
 #define KEY_LALT	KEY_RALT
 
+#define strncasecmp(x,y,z) _strnicmp(x,y,z)
 
 
 // DOOM basic types (boolean),

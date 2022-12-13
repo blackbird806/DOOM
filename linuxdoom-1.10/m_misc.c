@@ -31,7 +31,6 @@ rcsid[] = "$Id: m_misc.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include <sys/types.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include <ctype.h>
 
@@ -118,13 +117,13 @@ M_WriteFile
     int		handle;
     int		count;
 	
-    handle = open ( name, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+    handle = fopen ( name, "wb");
 
     if (handle == -1)
 	return false;
 
-    count = write (handle, source, length);
-    close (handle);
+    count = fwrite (source, 1, length, handle);
+    fclose (handle);
 	
     if (count < length)
 	return false;
@@ -145,15 +144,15 @@ M_ReadFile
     struct stat	fileinfo;
     byte		*buf;
 	
-    handle = open (name, O_RDONLY | O_BINARY, 0666);
+    handle = fopen (name, "rb");
     if (handle == -1)
 	I_Error ("Couldn't read file %s", name);
     if (fstat (handle,&fileinfo) == -1)
 	I_Error ("Couldn't read file %s", name);
     length = fileinfo.st_size;
     buf = Z_Malloc (length, PU_STATIC, NULL);
-    count = read (handle, buf, length);
-    close (handle);
+    count = fread (buf, 1, length, handle);
+	fclose (handle);
 	
     if (count < length)
 	I_Error ("Couldn't read file %s", name);

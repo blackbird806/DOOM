@@ -24,6 +24,7 @@
 //-----------------------------------------------------------------------------
 
 
+#include <malloc.h>
 static const char
 rcsid[] = "$Id: r_data.c,v 1.4 1997/02/03 16:47:55 b1 Exp $";
 
@@ -47,7 +48,6 @@ rcsid[] = "$Id: r_data.c,v 1.4 1997/02/03 16:47:55 b1 Exp $";
 
 
 #include "r_data.h"
-
 //
 // Graphics.
 // DOOM graphics for walls and sprites

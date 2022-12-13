@@ -31,15 +31,14 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 #define	FGCOLOR		8
 
 
-#ifdef NORMALUNIX
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
+#define WIN32_LEAN_AND_MEAN 
+#include <windows.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#endif
-
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -141,6 +140,13 @@ void D_DoAdvanceDemo (void);
 event_t         events[MAXEVENTS];
 int             eventhead;
 int 		eventtail;
+
+// let's ignore these
+#define R_OK 0
+int access(const char* pathname, int mode)
+{
+	return 1;
+}
 
 
 //
@@ -563,14 +569,15 @@ void D_AddFile (char *file)
 void IdentifyVersion (void)
 {
 
-    char*	doom1wad;
-    char*	doomwad;
-    char*	doomuwad;
-    char*	doom2wad;
+    char*	doom1wad = NULL;
+    char*	doomwad = NULL;
+    char*	doomuwad = NULL;
+    char*	doom2wad = NULL;
 
-    char*	doom2fwad;
-    char*	plutoniawad;
-    char*	tntwad;
+    char*	doom2fwad = NULL;
+    char*	plutoniawad = NULL;
+    char*	tntwad = NULL;
+	D_AddFile("DOOM.WAD");
 
 #ifdef NORMALUNIX
     char *home;
@@ -877,7 +884,7 @@ void D_DoomMain (void)
     if (M_CheckParm("-cdrom"))
     {
 	printf(D_CDROM);
-	mkdir("c:\\doomdata",0);
+	CreateDirectoryA("c:\\doomdata",NULL);
 	strcpy (basedefault,"c:/doomdata/default.cfg");
     }	
     
@@ -1098,7 +1105,7 @@ void D_DoomMain (void)
     P_Init ();
 
     printf ("I_Init: Setting up machine state.\n");
-    I_Init ();
+    //I_Init ();
 
     printf ("D_CheckNetGame: Checking network game status.\n");
     D_CheckNetGame ();

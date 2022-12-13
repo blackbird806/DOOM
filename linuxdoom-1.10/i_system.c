@@ -20,6 +20,10 @@
 //
 //-----------------------------------------------------------------------------
 
+#define WIN32_LEAN_AND_MEAN 
+#include <windows.h>
+
+#include <stdint.h>
 static const char
 rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
@@ -29,8 +33,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #include <string.h>
 
 #include <stdarg.h>
-#include <sys/time.h>
-#include <unistd.h>
+
 
 #include "doomdef.h"
 #include "m_misc.h"
@@ -46,6 +49,32 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #include "i_system.h"
 
 
+// https://stackoverflow.com/a/26085827
+typedef struct timeval {
+    long tv_sec;
+    long tv_usec;
+} timeval;
+
+int gettimeofday(struct timeval* tp)
+{
+    // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+    // This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+    // until 00:00:00 January 1, 1970 
+    static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
+
+    SYSTEMTIME  system_time;
+    FILETIME    file_time;
+    uint64_t    time;
+
+    GetSystemTime(&system_time);
+    SystemTimeToFileTime(&system_time, &file_time);
+    time = ((uint64_t)file_time.dwLowDateTime);
+    time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+    tp->tv_sec = (long)((time - EPOCH) / 10000000L);
+    tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+    return 0;
+}
 
 
 int	mb_used = 6;
@@ -88,11 +117,10 @@ byte* I_ZoneBase (int*	size)
 int  I_GetTime (void)
 {
     struct timeval	tp;
-    struct timezone	tzp;
     int			newtics;
     static int		basetime=0;
   
-    gettimeofday(&tp, &tzp);
+    gettimeofday(&tp);
     if (!basetime)
 	basetime = tp.tv_sec;
     newtics = (tp.tv_sec-basetime)*TICRATE + tp.tv_usec*TICRATE/1000000;
@@ -107,7 +135,7 @@ int  I_GetTime (void)
 void I_Init (void)
 {
     I_InitSound();
-    //  I_InitGraphics();
+	I_InitGraphics();
 }
 
 //
@@ -131,7 +159,7 @@ void I_WaitVBL(int count)
 #ifdef SUN
     sleep(0);
 #else
-    usleep (count * (1000000/70) );                                
+    Sleep (count * (1000000/70) );                                
 #endif
 #endif
 }
